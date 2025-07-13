@@ -5,9 +5,9 @@ namespace Modules\Perspektivakrym\Services;
 
 
 use Illuminate\Support\Facades\Log;
-use App\Entities\B24;
-use App\Entities\ParseDeal;
-use App\Entities\Unisender;
+use Modules\Perspektivakrym\Entities\B24;
+use Modules\Perspektivakrym\Entities\ParseDeal;
+use Modules\Perspektivakrym\Entities\Unisender;
 
 class DealService
 {

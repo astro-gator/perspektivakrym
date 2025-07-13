@@ -5,9 +5,9 @@ namespace Modules\Perspektivakrym\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use App\Entities\B24;
-use App\Entities\Contact;
-use App\Services\DealService;
+use Modules\Perspektivakrym\Entities\B24;
+use Modules\Perspektivakrym\Entities\Contact;
+use Modules\Perspektivakrym\Services\DealService;
 
 class UnisenderController extends Controller
 {
