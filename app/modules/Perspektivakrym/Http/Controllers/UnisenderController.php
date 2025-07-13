@@ -164,11 +164,11 @@ class UnisenderController extends Controller
 
     public function test()
     {
-//        ['STATUS_ID' => 'CONVERTED', 'UF_CRM_1602664584'=>[54,56]]
-//        $res = $this->b24->getLead();
-//        dd($res);
-//        $listId = 19828748;
-//        $this->sDeal->exclude($listId);
-//        $this->sDeal->upload($listId);
+        //['STATUS_ID' => 'CONVERTED', 'UF_CRM_1602664584'=>[54,56]]
+        $res = $this->b24->getLead();
+        dd($res);
+        $listId = 19828748;
+        $this->sDeal->exclude($listId);
+        $this->sDeal->upload($listId);
     }
 }
