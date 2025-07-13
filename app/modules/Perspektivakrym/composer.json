@@ -1,0 +1,25 @@
+{
+    "name": "nwidart/perspektivakrym",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Perspektivakrym\\Providers\\PerspektivakrymServiceProvider"
+            ],
+            "aliases": {
+                
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Perspektivakrym\\": ""
+        }
+    }
+}

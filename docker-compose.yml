@@ -1,0 +1,78 @@
+version: '3.8'
+
+networks:
+    egor-network:
+        driver: bridge
+
+volumes:
+    composer:
+    redis_data:
+    db-data:
+
+services:
+
+    nginx:
+        build:
+            context: ./docker/nginx
+            args:
+                PGID: "${PGID:-1006}"
+                PUID: "${PUID:-1006}"
+        depends_on:
+            - php
+        container_name: egor-nginx
+        restart: unless-stopped
+        working_dir: /var/www/app
+        volumes:
+            - .:/var/www
+            - ./var/log/nginx:/var/log/nginx:delegated
+        ports:
+            - "127.0.0.1:2210:80"
+        networks:
+            - egor-network
+
+    php:
+        build:
+            context: ./docker/php
+            args:
+                PGID: "${PGID:-1006}"
+                PUID: "${PUID:-1006}"
+                DEVELOP: "true"
+        container_name: egor-php
+        restart: unless-stopped
+        working_dir: /var/www/app
+        volumes:
+            - .:/var/www:rw
+            - composer:/home/www-data/.composer:rw
+        networks:
+            - egor-network
+
+    redis:
+        build:
+            context: ./docker/redis
+        container_name: egor-redis
+        restart: unless-stopped
+        volumes:
+            - redis_data:/data:rw
+        ports:
+            - "127.0.0.1:6905:6379"
+        networks:
+            - egor-network
+
+    database:
+        image: mysql:5.7.32
+        container_name: egor-db
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "127.0.0.1:65330:3306"
+        environment:
+            MYSQL_DATABASE: ${DATABASE_NAME}
+            MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+            MYSQL_USER: ${DATABASE_USER}
+            MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        volumes:
+            - db-data:/var/lib/mysql
+        networks:
+            - egor-network
