@@ -4,9 +4,7 @@ return [
     'name' => 'Perspektivakrym',
     'url' => 'https://perspektivakrym.bitrix24.ru/rest/1106/p2otsvtz52e421u3/',
     'domain' => 'perspektivakrym.bitrix24.ru',
-//    'app_id' => 'local.5d82084f073d86.61809079',
     'app_id' => 'local.60001ae611fff2.62557572',
-//    'app_id' => 'eb735c6100515a66004d24d00000006a0000031b23e5001b4760dcba7808381193f010',
     'key' => 'HLnvlWs1J3g7Xt8NUz3cgYo5X6ZTQvNSG0VkG4jpGgZ1Oho8oN',
 
     'dir' => 'perspektivakrym',
