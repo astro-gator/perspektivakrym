@@ -227,6 +227,8 @@ class CRest
             $arPost['params'] = static::changeEncoding($arPost['params']);
         }
 
+        dd($arPost);
+
         $result = static::callCurl($arPost);
         return $result;
     }
