@@ -105,6 +105,7 @@ class CRest
             }
 
             $sPostFields = http_build_query($arParams['params']);
+            dd($sPostFields);
             try {
                 $obCurl = curl_init();
                 curl_setopt($obCurl, CURLOPT_URL, $url);
@@ -140,7 +141,7 @@ class CRest
                 } else {
                     $result = static::expandData($out);
                 }
-                dd($url);
+
                 curl_close($obCurl);
 
                 if (!empty($result['error'])) {
