@@ -63,6 +63,8 @@ class PerspektivakrymController extends Controller
                     throw new \DomainException('Приложение не авторизовано');
                 }
 
+                dd($this->checkApp($auth));
+
                 if (is_null($placementOptions)) {
                     throw new \DomainException('Нет данных по сделке');
                 }
