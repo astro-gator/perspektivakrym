@@ -92,7 +92,7 @@ class CRest
                 'error_information' => 'need install curl lib'
             ];
         }
-        dd($arParams);
+
         $arSettings = static::getAppSettings();
 
         if ($arSettings !== false) {
@@ -104,6 +104,8 @@ class CRest
                     $arParams['params']['auth'] = $arSettings['access_token'];
                 }
             }
+
+            dd($arSettings['access_token']);
 
             $sPostFields = http_build_query($arParams['params']);
 
