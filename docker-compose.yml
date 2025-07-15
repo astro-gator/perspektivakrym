@@ -43,6 +43,8 @@ services:
         volumes:
             - .:/var/www:rw
             - composer:/home/www-data/.composer:rw
+            - /etc/ssl:/etc/ssl
+            - /usr/share/ca-certificates:/usr/share/ca-certificates
         networks:
             - egor-network
 
