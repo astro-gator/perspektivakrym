@@ -94,6 +94,7 @@ class CRest
         }
 
         $arSettings = static::getAppSettings();
+        dd($arSettings);
         if ($arSettings !== false) {
             if (isset($arParams['this_auth']) && $arParams['this_auth'] == 'Y') {
                 $url = 'https://oauth.bitrix.info/oauth/token/';
@@ -105,7 +106,7 @@ class CRest
             }
 
             $sPostFields = http_build_query($arParams['params']);
-            dd($arParams['params']);
+
             try {
                 $obCurl = curl_init();
                 curl_setopt($obCurl, CURLOPT_URL, $url);
