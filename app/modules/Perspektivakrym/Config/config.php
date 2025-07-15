@@ -2,7 +2,7 @@
 
 return [
     'name' => 'Perspektivakrym',
-    'url' => 'https://perspektivakrym.bitrix24.ru/rest/1106/vy76jeiaozwih7bo/',
+    'url' => 'https://perspektivakrym.bitrix24.ru/rest/1106/p2otsvtz52e421u3/',
     'domain' => 'perspektivakrym.bitrix24.ru',
 //    'app_id' => 'local.5d82084f073d86.61809079',
     'app_id' => 'local.60001ae611fff2.62557572',
