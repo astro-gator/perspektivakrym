@@ -3481,6 +3481,14 @@ class PerspektivakrymController extends Controller
      */
     protected function checkApp($auth)
     {
+        // Временная отладка
+        dd([
+            'auth' => $auth,
+            'config_app_id' => config('perspektivakrym.app_id'),
+            'auth_equals_config' => $auth === config('perspektivakrym.app_id'),
+            'app_info_result' => $this->b24->getAppInfo($auth),
+        ]);
+
         if ($auth === config('perspektivakrym.app_id')) {
             return true;
         }
