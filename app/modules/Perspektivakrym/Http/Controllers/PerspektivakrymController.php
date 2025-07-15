@@ -451,8 +451,6 @@ class PerspektivakrymController extends Controller
             $auth = $request->get('auth');
             $numberGraph = $request->get('number_graph', $numberGraph);
 
-            dd($auth);
-
             if (!$this->checkApp($auth)) {
                 throw new \DomainException('Приложение не авторизовано');
             }
@@ -3467,6 +3465,7 @@ class PerspektivakrymController extends Controller
      */
     protected function checkApp($auth)
     {
+        dd($auth);
         if ($auth === config('perspektivakrym.app_id')) {
             return true;
         }
