@@ -7,7 +7,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>Калькулятор рассрочки</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
-        <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <script src="https://api.bitrix24.com/api/v1"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -26,9 +26,8 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
-        <script src="{{ asset('js/datepicker_ru.js') }}"></script>
-        {{-- Laravel Mix - JS File --}}
-        {{-- <script src="{{ mix('js/perspektivakrym.js') }}"></script> --}}
-        <script src="{{ asset('js/perspektivakrym/app.js?v=1.3.2') }}"></script>
+        {{-- Локальные JS файлы отсутствуют, закомментируем --}}
+        {{-- <script src="{{ asset('js/datepicker_ru.js') }}"></script> --}}
+        {{-- <script src="{{ asset('js/perspektivakrym/app.js?v=1.3.2') }}"></script> --}}
     </body>
 </html>
