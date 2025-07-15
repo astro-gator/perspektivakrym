@@ -90,6 +90,7 @@ class CRest
                 'error_information' => 'need install curl lib'
             ];
         }
+
         $arSettings = static::getAppSettings();
         if ($arSettings !== false) {
             if (isset($arParams['this_auth']) && $arParams['this_auth'] == 'Y') {
@@ -109,6 +110,12 @@ class CRest
                 curl_setopt($obCurl, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($obCurl, CURLOPT_POSTREDIR, 10);
                 curl_setopt($obCurl, CURLOPT_USERAGENT, 'Bitrix24 CRest PHP ' . static::VERSION);
+                // Добавляем таймауты
+                curl_setopt($obCurl, CURLOPT_CONNECTTIMEOUT, 10); // таймаут соединения
+                curl_setopt($obCurl, CURLOPT_TIMEOUT, 30); // общий таймаут
+                // Дополнительные настройки для стабильности
+                curl_setopt($obCurl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+                curl_setopt($obCurl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
                 if ($sPostFields) {
                     curl_setopt($obCurl, CURLOPT_POST, true);
                     curl_setopt($obCurl, CURLOPT_POSTFIELDS, $sPostFields);
