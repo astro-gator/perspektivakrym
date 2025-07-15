@@ -102,13 +102,15 @@ RUN docker-php-ext-install gmp
 # PCNTL
 RUN docker-php-ext-install pcntl
 
-# Curl
+# Curl and SSL certificates
 RUN apt-get clean; \
   apt-get update --fix-missing; \
-  apt-get install -y curl libcurl4-gnutls-dev; \
+  apt-get install -y curl libcurl4-gnutls-dev ca-certificates; \
+  update-ca-certificates; \
   rm -rf /var/lib/apt/lists/*; \
   wget -P /etc/ssl/certs https://curl.haxx.se/ca/cacert.pem; \
-  sed -i '/;curl.cainfo =/curl.cainfo = /etc/ssl/certs/cacert.pem' /usr/local/etc/php/php.ini
+  sed -i '/;curl.cainfo =/curl.cainfo = /etc/ssl/certs/cacert.pem' /usr/local/etc/php/php.ini; \
+  echo "curl.cainfo = /etc/ssl/certs/cacert.pem" >> /usr/local/etc/php/conf.d/curl.ini
 
 # Install yarn
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - ; \

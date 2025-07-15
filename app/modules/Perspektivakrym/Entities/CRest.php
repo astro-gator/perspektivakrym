@@ -103,7 +103,6 @@ class CRest
             }
 
             $sPostFields = http_build_query($arParams['params']);
-
             try {
                 $obCurl = curl_init();
                 curl_setopt($obCurl, CURLOPT_URL, $url);
@@ -170,7 +169,9 @@ class CRest
                         'url' => $url,
                         'info' => $info,
                         'params' => $arParams,
-                        'result' => $result
+                        'result' => $result,
+                        'post_fields' => $sPostFields,
+                        'settings' => $arSettings
                     ],
                     'callCurl'
                 );
