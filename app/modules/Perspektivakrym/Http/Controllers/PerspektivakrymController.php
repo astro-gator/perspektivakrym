@@ -57,18 +57,23 @@ class PerspektivakrymController extends Controller
             if (count($data) == 0) {
                 $placementOptions = $request->get('PLACEMENT_OPTIONS', null);
 
-                // Пробуем разные способы получения AUTH_ID
-                $auth = $request->input('AUTH_ID') ?? $request->get('AUTH_ID') ?? $request->all()['AUTH_ID'] ?? null;
-
-                // Отладка для понимания проблемы
-                dd([
-                    'request_all' => $request->all(),
-                    'request_get' => $request->get(),
-                    'request_input' => $request->input('AUTH_ID'),
-                    'auth_id_from_request' => $request->get('AUTH_ID'),
-                    'auth_from_all' => $request->all()['AUTH_ID'] ?? 'not_found',
-                    'auth_variable' => $auth,
-                ]);
+                // Временная отладка для понимания проблемы
+                $auth = $request->get('AUTH_ID', null);
+                
+                // Проверяем, что приходит в запросе
+                if ($auth === null) {
+                    dd([
+                        'request_method' => $request->getMethod(),
+                        'request_content_type' => $request->header('Content-Type'),
+                        'request_all' => $request->all(),
+                        'request_get' => $request->get(),
+                        'request_post' => $request->post(),
+                        'request_input' => $request->input(),
+                        'auth_id_direct' => $request->get('AUTH_ID'),
+                        'auth_id_input' => $request->input('AUTH_ID'),
+                        'auth_id_all' => $request->all()['AUTH_ID'] ?? 'not_found',
+                    ]);
+                }
 
                 if (!$this->checkApp($auth)) {
                     throw new \DomainException('Приложение не авторизовано');
@@ -3476,21 +3481,11 @@ class PerspektivakrymController extends Controller
      */
     protected function checkApp($auth)
     {
-        // Временная отладка для понимания проблемы
-        dd([
-            'auth' => $auth,
-            'config_app_id' => config('perspektivakrym.app_id'),
-            'auth_equals_config' => $auth === config('perspektivakrym.app_id'),
-            'app_info_result' => $this->b24->getAppInfo($auth),
-        ]);
-
         if ($auth === config('perspektivakrym.app_id')) {
             return true;
         }
 
         $appInfo = $this->b24->getAppInfo($auth);
-
-        //dd($appInfo['result']['CODE'] . ' | ' . config('perspektivakrym.app_id'));
 
         if(isset($appInfo['result']['CODE'])) {
             if($appInfo['result']['CODE'] === config('perspektivakrym.app_id')) {
