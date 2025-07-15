@@ -46,6 +46,8 @@ class B24
     {
         $res = $this->rest->call('app.info', ['auth' => $auth]);
         $this->checkError($res);
+
+        dd($res);
         return $res;
     }
 

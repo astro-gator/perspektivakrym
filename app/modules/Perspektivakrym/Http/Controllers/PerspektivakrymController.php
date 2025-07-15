@@ -3465,7 +3465,6 @@ class PerspektivakrymController extends Controller
      */
     protected function checkApp($auth)
     {
-        dd($auth);
         if ($auth === config('perspektivakrym.app_id')) {
             return true;
         }
