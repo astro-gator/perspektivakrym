@@ -59,6 +59,14 @@ class PerspektivakrymController extends Controller
 
                 $auth = $request->get('AUTH_ID', null);
 
+                // Отладка для понимания проблемы
+                dd([
+                    'request_all' => $request->all(),
+                    'request_get' => $request->get(),
+                    'auth_id_from_request' => $request->get('AUTH_ID'),
+                    'auth_variable' => $auth,
+                ]);
+
                 if (!$this->checkApp($auth)) {
                     throw new \DomainException('Приложение не авторизовано');
                 }
