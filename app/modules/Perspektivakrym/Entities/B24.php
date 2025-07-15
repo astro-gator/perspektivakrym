@@ -46,7 +46,33 @@ class B24
     {
         $res = $this->rest->call('app.info', ['auth' => $auth]);
         $this->checkError($res);
-        dd(3, $res);
+
+        //array:2 [▼ // modules/Perspektivakrym/Entities/B24.php:49
+        //  "result" => array:11 [▼
+        //    "ID" => 210
+        //    "CODE" => "local.6867d4682b0226.24518665"
+        //    "VERSION" => 1
+        //    "STATUS" => "L"
+        //    "INSTALLED" => true
+        //    "PAYMENT_EXPIRED" => "N"
+        //    "DAYS" => null
+        //    "LANGUAGE_ID" => "ru"
+        //    "LICENSE" => "ru_pro100"
+        //    "LICENSE_TYPE" => "pro100"
+        //    "LICENSE_FAMILY" => "pro"
+        //  ]
+        //  "time" => array:8 [▼
+        //    "start" => 1752600562.3879
+        //    "finish" => 1752600562.4149
+        //    "duration" => 0.02699613571167
+        //    "processing" => 0.00032401084899902
+        //    "date_start" => "2025-07-15T20:29:22+03:00"
+        //    "date_finish" => "2025-07-15T20:29:22+03:00"
+        //    "operating_reset_at" => 1752601162
+        //    "operating" => 0
+        //  ]
+        //]
+
         return $res;
     }
 
