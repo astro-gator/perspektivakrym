@@ -4,6 +4,8 @@ namespace Modules\Perspektivakrym\Entities;
 //    define('C_REST_CLIENT_ID','local.5c8bb1b0891cf2.87252039');//Application ID
 //define('C_REST_CLIENT_SECRET','SakeVG5mbRdcQet45UUrt6q72AMTo7fkwXSO7Y5LYFYNCRsA6f');//Application key
 // or
+use Exception;
+
 define('C_REST_WEB_HOOK_URL', config('perspektivakrym.url'));//url on creat Webhook
 
 //define('C_REST_CURRENT_ENCODING','windows-1251');
@@ -138,7 +140,7 @@ class CRest
                 } else {
                     $result = static::expandData($out);
                 }
-                dd($result);
+                dd($url);
                 curl_close($obCurl);
 
                 if (!empty($result['error'])) {
