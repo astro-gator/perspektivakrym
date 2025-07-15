@@ -57,7 +57,8 @@ class PerspektivakrymController extends Controller
             if (count($data) == 0) {
                 $placementOptions = $request->get('PLACEMENT_OPTIONS', null);
 
-                $auth = $request->get('AUTH_ID', null);
+                // Получаем auth из разных возможных параметров
+                $auth = $request->get('AUTH_ID', $request->get('key', null));
 
                 if (!$this->checkApp($auth)) {
                     throw new \DomainException('Приложение не авторизовано');
@@ -3465,20 +3466,41 @@ class PerspektivakrymController extends Controller
      */
     protected function checkApp($auth)
     {
+        // Временная отладка
+        $debug = [
+            'auth' => $auth,
+            'config_key' => config('perspektivakrym.key'),
+            'config_app_id' => config('perspektivakrym.app_id'),
+            'auth_equals_key' => $auth === config('perspektivakrym.key'),
+            'auth_equals_app_id' => $auth === config('perspektivakrym.app_id'),
+        ];
+        
+        // Проверяем ключ авторизации
+        if ($auth === config('perspektivakrym.key')) {
+            return true;
+        }
 
+        // Проверяем app_id (для обратной совместимости)
         if ($auth === config('perspektivakrym.app_id')) {
             return true;
         }
 
-        $appInfo = $this->b24->getAppInfo($auth);
-
-        //dd($appInfo['result']['CODE'] . ' | ' . config('perspektivakrym.app_id'));
-
-        if(isset($appInfo['result']['CODE'])) {
-            if($appInfo['result']['CODE'] === config('perspektivakrym.app_id')) {
-                return true;
+        // Пробуем получить информацию о приложении через API
+        try {
+            $appInfo = $this->b24->getAppInfo($auth);
+            if(isset($appInfo['result']['CODE'])) {
+                if($appInfo['result']['CODE'] === config('perspektivakrym.app_id')) {
+                    return true;
+                }
             }
+        } catch (\Exception $e) {
+            // Логируем ошибку, но не прерываем выполнение
+            Log::error('Perspektivakrym: Auth check error - ' . $e->getMessage());
         }
+
+        // Если все проверки не прошли, показываем отладочную информацию
+        dd($debug);
+
         return false;
     }
 

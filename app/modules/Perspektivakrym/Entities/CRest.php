@@ -94,7 +94,7 @@ class CRest
         }
 
         $arSettings = static::getAppSettings();
-        dd($arSettings);
+
         if ($arSettings !== false) {
             if (isset($arParams['this_auth']) && $arParams['this_auth'] == 'Y') {
                 $url = 'https://oauth.bitrix.info/oauth/token/';
@@ -132,10 +132,12 @@ class CRest
                     curl_setopt($obCurl, CURLOPT_SSL_VERIFYHOST, false);
                 }
                 $out = curl_exec($obCurl);
+
                 $info = curl_getinfo($obCurl);
                 if (curl_errno($obCurl)) {
                     $info['curl_error'] = curl_error($obCurl);
                 }
+
                 if (static::TYPE_TRANSPORT == 'xml' && (!isset($arParams['this_auth']) || $arParams['this_auth'] != 'Y'))//auth only json support
                 {
                     $result = $out;
