@@ -227,8 +227,6 @@ class CRest
             $arPost['params'] = static::changeEncoding($arPost['params']);
         }
 
-        dd($arPost);
-
         $result = static::callCurl($arPost);
         return $result;
     }
@@ -374,6 +372,7 @@ class CRest
             }
         }
 
+        dd($arData);
         return ($isCurrData) ? $arData : false;
     }
 
