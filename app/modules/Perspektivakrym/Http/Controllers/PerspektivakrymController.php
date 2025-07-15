@@ -450,7 +450,7 @@ class PerspektivakrymController extends Controller
             $dealId = $request->get('deal_id', null);
             $auth = $request->get('auth');
             $numberGraph = $request->get('number_graph', $numberGraph);
-
+            dd($auth);
             if (!$this->checkApp($auth)) {
                 throw new \DomainException('Приложение не авторизовано');
             }
