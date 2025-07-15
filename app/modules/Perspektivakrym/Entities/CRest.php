@@ -105,8 +105,6 @@ class CRest
                 }
             }
 
-            dd($arSettings['access_token']);
-
             $sPostFields = http_build_query($arParams['params']);
 
             try {
