@@ -3473,10 +3473,12 @@ class PerspektivakrymController extends Controller
 
         if(isset($appInfo['result']['CODE'])) {
             if($appInfo['result']['CODE'] === config('perspektivakrym.app_id')) {
-                dd($appInfo['result']['CODE'], config('perspektivakrym.app_id'));
                 return true;
             }
         }
+
+        dd(3, $appInfo['result']['CODE'], config('perspektivakrym.app_id'));
+
         return false;
     }
 
