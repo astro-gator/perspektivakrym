@@ -92,7 +92,7 @@ class CRest
                 'error_information' => 'need install curl lib'
             ];
         }
-
+        dd($arParams);
         $arSettings = static::getAppSettings();
 
         if ($arSettings !== false) {
