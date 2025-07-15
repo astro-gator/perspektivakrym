@@ -57,13 +57,16 @@ class PerspektivakrymController extends Controller
             if (count($data) == 0) {
                 $placementOptions = $request->get('PLACEMENT_OPTIONS', null);
 
-                $auth = $request->get('AUTH_ID', null);
+                // Пробуем разные способы получения AUTH_ID
+                $auth = $request->input('AUTH_ID') ?? $request->get('AUTH_ID') ?? $request->all()['AUTH_ID'] ?? null;
 
                 // Отладка для понимания проблемы
                 dd([
                     'request_all' => $request->all(),
                     'request_get' => $request->get(),
+                    'request_input' => $request->input('AUTH_ID'),
                     'auth_id_from_request' => $request->get('AUTH_ID'),
+                    'auth_from_all' => $request->all()['AUTH_ID'] ?? 'not_found',
                     'auth_variable' => $auth,
                 ]);
 
