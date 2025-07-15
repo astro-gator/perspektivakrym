@@ -3466,15 +3466,6 @@ class PerspektivakrymController extends Controller
      */
     protected function checkApp($auth)
     {
-        // Временная отладка
-        $debug = [
-            'auth' => $auth,
-            'config_key' => config('perspektivakrym.key'),
-            'config_app_id' => config('perspektivakrym.app_id'),
-            'auth_equals_key' => $auth === config('perspektivakrym.key'),
-            'auth_equals_app_id' => $auth === config('perspektivakrym.app_id'),
-        ];
-        
         // Проверяем ключ авторизации
         if ($auth === config('perspektivakrym.key')) {
             return true;
@@ -3497,9 +3488,6 @@ class PerspektivakrymController extends Controller
             // Логируем ошибку, но не прерываем выполнение
             Log::error('Perspektivakrym: Auth check error - ' . $e->getMessage());
         }
-
-        // Если все проверки не прошли, показываем отладочную информацию
-        dd($debug);
 
         return false;
     }

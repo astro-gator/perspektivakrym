@@ -13,6 +13,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Маршруты без CSRF-защиты для внешних запросов от Bitrix24
 Route::prefix('perspektivakrym')->group(function() {
     Route::any('/', 'PerspektivakrymController@index');
 
