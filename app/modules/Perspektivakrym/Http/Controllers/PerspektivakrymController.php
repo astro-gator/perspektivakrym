@@ -53,13 +53,11 @@ class PerspektivakrymController extends Controller
      */
     public function index(Request $request, $data = [])
     {
-        dd($request);
         try {
             if (count($data) == 0) {
                 $placementOptions = $request->get('PLACEMENT_OPTIONS', null);
 
-                // Получаем auth из разных возможных параметров
-                $auth = $request->get('AUTH_ID', $request->get('key', null));
+                $auth = $request->get('AUTH_ID', null);
 
                 if (!$this->checkApp($auth)) {
                     throw new \DomainException('Приложение не авторизовано');
@@ -3467,29 +3465,19 @@ class PerspektivakrymController extends Controller
      */
     protected function checkApp($auth)
     {
-        // Проверяем ключ авторизации
-        if ($auth === config('perspektivakrym.key')) {
-            return true;
-        }
-
-        // Проверяем app_id (для обратной совместимости)
         if ($auth === config('perspektivakrym.app_id')) {
             return true;
         }
 
-        // Пробуем получить информацию о приложении через API
-        try {
-            $appInfo = $this->b24->getAppInfo($auth);
-            if(isset($appInfo['result']['CODE'])) {
-                if($appInfo['result']['CODE'] === config('perspektivakrym.app_id')) {
-                    return true;
-                }
-            }
-        } catch (\Exception $e) {
-            // Логируем ошибку, но не прерываем выполнение
-            Log::error('Perspektivakrym: Auth check error - ' . $e->getMessage());
-        }
+        $appInfo = $this->b24->getAppInfo($auth);
 
+        //dd($appInfo['result']['CODE'] . ' | ' . config('perspektivakrym.app_id'));
+
+        if(isset($appInfo['result']['CODE'])) {
+            if($appInfo['result']['CODE'] === config('perspektivakrym.app_id')) {
+                return true;
+            }
+        }
         return false;
     }
 
