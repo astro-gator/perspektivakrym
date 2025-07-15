@@ -57,23 +57,7 @@ class PerspektivakrymController extends Controller
             if (count($data) == 0) {
                 $placementOptions = $request->get('PLACEMENT_OPTIONS', null);
 
-                // Временная отладка для понимания проблемы
                 $auth = $request->get('AUTH_ID', null);
-                
-                // Проверяем, что приходит в запросе
-                if ($auth === null) {
-                    dd([
-                        'request_method' => $request->getMethod(),
-                        'request_content_type' => $request->header('Content-Type'),
-                        'request_all' => $request->all(),
-                        'request_get' => $request->get(),
-                        'request_post' => $request->post(),
-                        'request_input' => $request->input(),
-                        'auth_id_direct' => $request->get('AUTH_ID'),
-                        'auth_id_input' => $request->input('AUTH_ID'),
-                        'auth_id_all' => $request->all()['AUTH_ID'] ?? 'not_found',
-                    ]);
-                }
 
                 if (!$this->checkApp($auth)) {
                     throw new \DomainException('Приложение не авторизовано');
@@ -3481,14 +3465,6 @@ class PerspektivakrymController extends Controller
      */
     protected function checkApp($auth)
     {
-        // Временная отладка
-        dd([
-            'auth' => $auth,
-            'config_app_id' => config('perspektivakrym.app_id'),
-            'auth_equals_config' => $auth === config('perspektivakrym.app_id'),
-            'app_info_result' => $this->b24->getAppInfo($auth),
-        ]);
-
         if ($auth === config('perspektivakrym.app_id')) {
             return true;
         }
