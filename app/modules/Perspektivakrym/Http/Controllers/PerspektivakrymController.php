@@ -57,7 +57,16 @@ class PerspektivakrymController extends Controller
             if (count($data) == 0) {
                 $placementOptions = $request->get('PLACEMENT_OPTIONS', null);
 
-                $auth = $request->get('AUTH_ID', null);
+                $auth = $request->get('AUTH_ID', $request->get('key', null));
+                
+                // Отладочная информация
+                Log::info('Perspektivakrym auth debug:', [
+                    'AUTH_ID' => $request->get('AUTH_ID'),
+                    'key' => $request->get('key'),
+                    'auth' => $auth,
+                    'app_id' => config('perspektivakrym.app_id'),
+                    'key_config' => config('perspektivakrym.key')
+                ]);
 
                 if (!$this->checkApp($auth)) {
                     throw new \DomainException('Приложение не авторизовано');
@@ -3465,17 +3474,35 @@ class PerspektivakrymController extends Controller
      */
     protected function checkApp($auth)
     {
+        // Проверяем, что auth не пустой
+        if (empty($auth)) {
+            return false;
+        }
+
+        // Проверяем, соответствует ли auth app_id из конфигурации
         if ($auth === config('perspektivakrym.app_id')) {
             return true;
         }
 
-        $appInfo = $this->b24->getAppInfo($auth);
-
-        if(isset($appInfo['result']['CODE'])) {
-            if($appInfo['result']['CODE'] === config('perspektivakrym.app_id')) {
-                return true;
-            }
+        // Проверяем, соответствует ли auth ключу из конфигурации
+        if ($auth === config('perspektivakrym.key')) {
+            return true;
         }
+
+        // Пытаемся получить информацию о приложении через API
+        try {
+            $appInfo = $this->b24->getAppInfo($auth);
+
+            if(isset($appInfo['result']['CODE'])) {
+                if($appInfo['result']['CODE'] === config('perspektivakrym.app_id')) {
+                    return true;
+                }
+            }
+        } catch (\Exception $e) {
+            // Логируем ошибку, но не прерываем выполнение
+            Log::error('Perspektivakrym checkApp error: ' . $e->getMessage());
+        }
+        
         return false;
     }
 
