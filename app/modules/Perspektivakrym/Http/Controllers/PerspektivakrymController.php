@@ -3472,12 +3472,10 @@ class PerspektivakrymController extends Controller
         $appInfo = $this->b24->getAppInfo($auth);
 
         if(isset($appInfo['result']['CODE'])) {
-            if($appInfo['result']['CODE'] === config('perspektivakrym.app_id')) {
+            if($appInfo['result']['CODE'] == "local.6867d4682b0226.24518665") {
                 return true;
             }
         }
-
-        dd(3, $appInfo['result']['CODE'], config('perspektivakrym.app_id'));
 
         return false;
     }
