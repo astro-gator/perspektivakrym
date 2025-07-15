@@ -53,6 +53,7 @@ class PerspektivakrymController extends Controller
      */
     public function index(Request $request, $data = [])
     {
+        dd($request);
         try {
             if (count($data) == 0) {
                 $placementOptions = $request->get('PLACEMENT_OPTIONS', null);
