@@ -3465,15 +3465,6 @@ class PerspektivakrymController extends Controller
      */
     protected function checkApp($auth)
     {
-        // Добавляем отладочную информацию
-        dd([
-            'auth' => $auth,
-            'config_app_id' => config('perspektivakrym.app_id'),
-            'auth_equals_config' => $auth === config('perspektivakrym.app_id'),
-            'request_all' => request()->all(),
-            'request_get' => request()->get(),
-            'request_query' => request()->query(),
-        ]);
 
         if ($auth === config('perspektivakrym.app_id')) {
             return true;
@@ -3481,7 +3472,7 @@ class PerspektivakrymController extends Controller
 
         $appInfo = $this->b24->getAppInfo($auth);
 
-//        dd($appInfo['result']['CODE'] . ' | ' . config('perspektivakrym.app_id'));
+        dd($appInfo['result']['CODE'] . ' | ' . config('perspektivakrym.app_id'));
 
         if(isset($appInfo['result']['CODE'])) {
             if($appInfo['result']['CODE'] === config('perspektivakrym.app_id')) {
