@@ -128,6 +128,7 @@ class CRest
                     curl_setopt($obCurl, CURLOPT_SSL_VERIFYHOST, false);
                 }
                 $out = curl_exec($obCurl);
+                dd($out);
                 $info = curl_getinfo($obCurl);
                 if (curl_errno($obCurl)) {
                     $info['curl_error'] = curl_error($obCurl);
@@ -372,7 +373,6 @@ class CRest
             }
         }
 
-        dd($arData);
         return ($isCurrData) ? $arData : false;
     }
 
