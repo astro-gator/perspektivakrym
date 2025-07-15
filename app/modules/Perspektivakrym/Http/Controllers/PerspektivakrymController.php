@@ -73,7 +73,14 @@ class PerspektivakrymController extends Controller
                 }
 
                 if (is_null($placementOptions)) {
-                    throw new \DomainException('Нет данных по сделке');
+                    // Если нет данных сделки, показываем тестовую страницу
+                    return view('perspektivakrym::index')
+                        ->with(['viewData' => [
+                            'payments' => [],
+                            'dealId' => 0,
+                            'auth' => $auth,
+                            'test_mode' => true,
+                        ]]);
                 }
 
                 $dataRequest = json_decode($placementOptions, true, 512, JSON_THROW_ON_ERROR);
