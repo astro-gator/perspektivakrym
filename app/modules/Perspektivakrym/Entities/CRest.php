@@ -105,7 +105,7 @@ class CRest
             }
 
             $sPostFields = http_build_query($arParams['params']);
-            dd($sPostFields);
+            dd($arParams['params']);
             try {
                 $obCurl = curl_init();
                 curl_setopt($obCurl, CURLOPT_URL, $url);
