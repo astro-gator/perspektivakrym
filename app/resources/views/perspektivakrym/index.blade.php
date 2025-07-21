@@ -21,9 +21,6 @@
                         <li class="nav-item" role="presentation">
                             <a class="nav-link" id="payments" data-toggle="tab" href="#payments-tab" role="tab" >Платежи</a>
                         </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" id="graph2" data-toggle="tab" href="#graph2-tab" role="tab" >График 2</a>
-                        </li>
                     </ul>
 
                     <div class="tab-content">
@@ -37,23 +34,6 @@
                             <h2>Фактические платежи</h2>
                             @include('perspektivakrym::_partical.payments')
                         </div>
-
-                        {{-- Tab График 2 --}}
-                        <div class="tab-pane" id="graph2-tab" role="tabpanel" aria-labelledby="home-tab">
-                            <h2>График 2</h2>
-                            @if( count($viewData['payments2']) !== 0)
-                                @include('perspektivakrym::_partical.graph2')
-                            @else
-                                <p>По сделке данных нет</p>
-                                <form action="{{ route('perspektivakrym_perspektivakrym_calculatePayments') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="deal_id" value="{{ $viewData['dealId'] }}">
-                                    <input type="hidden" name="auth" value="{{ $viewData['auth'] }}">
-                                    <input type="hidden" name="number_graph" value="1">
-                                    <button type="submit" class="btn btn-outline-success">Рассчитать</button>
-                                </form>
-                            @endif
-                        </div>
                     </div>
                 @else
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -62,9 +42,6 @@
                         </li>
                         <li class="nav-item" role="presentation">
                             <a class="nav-link" id="payments" data-toggle="tab" href="#payments-tab" role="tab" >Платежи</a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" id="graph2" data-toggle="tab" href="#graph2-tab" role="tab">График 2</a>
                         </li>
                     </ul>
                     <div class="tab-content">
@@ -82,21 +59,6 @@
                         {{-- Tab платежи --}}
                         <div class="tab-pane" id="payments-tab" role="tabpanel" aria-labelledby="home-tab">
                             <h2>Фактические платежи</h2>
-                        </div>
-                        {{-- Tab График 2 --}}
-                        <div class="tab-pane" id="graph2-tab" role="tabpanel" aria-labelledby="home-tab">
-                            <h2>График 2</h2>
-                            @if( isset($viewData['payments2']) && count($viewData['payments2']) !== 0)
-                                @include('perspektivakrym::_partical.graph2')
-                            @else
-                                <p>По сделке данных нет</p>
-                                <form action="{{ route('perspektivakrym_perspektivakrym_calculatePayments') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="deal_id" value="{{ $viewData['dealId'] }}">
-                                    <input type="hidden" name="auth" value="{{ $viewData['auth'] }}">
-                                    <button type="submit" class="btn btn-outline-success">Рассчитать</button>
-                                </form>
-                            @endif
                         </div>
                     </div>
                 @endif

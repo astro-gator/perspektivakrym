@@ -135,7 +135,7 @@
                                 <strong id="plan_date_{{ $payment['id'] }}">{{ ($payment['is_text_date'])? $payment['text_date'] : date('d.m.Y', strtotime($payment['date'])) }}</strong>
                             </td>
                             <td><strong>{{ number_format($payment['amount_fact'], 2, '.', ' ') }}</strong></td>
-                            <td>{{ $payment['diff'] }}</td>
+                            <td>{{ (int)$payment['diff'] }}</td>
                             <td
                                 class="comment {{ ($payment['blocked'])? 'blocked' : '' }}"
                                 data-id = "{{ $payment['id'] }}"
@@ -223,7 +223,7 @@
                                 <strong>{{ number_format($payment['amount_fact'], 2, '.', ' ') }}</strong>
 
                             </td>
-                            <td>{{ $payment['diff'] }}</td>
+                            <td>{{ (int)$payment['diff'] }}</td>
                             <td
                                 class="comment {{ ($payment['blocked'])? 'blocked' : '' }}"
                                 data-id = "{{ $payment['id'] }}"

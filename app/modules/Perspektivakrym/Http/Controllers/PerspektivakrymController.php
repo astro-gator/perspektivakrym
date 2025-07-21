@@ -3450,7 +3450,7 @@ class PerspektivakrymController extends Controller
             $diffDays = 0;
         }
 
-        return $diffDays;
+        return (int)$diffDays;
     }
 
     protected function getOldDocByDealId($dealId)
