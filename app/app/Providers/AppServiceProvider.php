@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Принудительно устанавливаем правильный URL
+        URL::forceRootUrl('https://b24.perspektiva-crimea.ru');
+        URL::forceScheme('https');
     }
 }
