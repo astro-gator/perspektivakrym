@@ -1976,18 +1976,35 @@ class PerspektivakrymController extends Controller
     public function getExcelForLawyer(Request $request)
     {
         try {
+            Log::info("=== НАЧАЛО СОЗДАНИЯ EXCEL ФАЙЛА ===");
+            
             ini_set('memory_limit', '-1');
             $dealId = $request->get('deal_id');
             $auth = $request->get('auth');
             $type = $request->get('type');
             $numberGraph = $request->get('number_graph', 0);
             $fileName = $type . '_' . time() . '.xlsx';
+            
+            Log::info("Сделка ID: {$dealId}");
+            Log::info("Тип файла: {$type}");
+            Log::info("Номер графика: {$numberGraph}");
+            Log::info("Имя файла: {$fileName}");
 
             if (!$this->checkApp($auth)) {
+                Log::error("ОШИБКА: Приложение не авторизовано");
                 throw new \DomainException('Приложение не авторизовано');
             }
+            
+            Log::info("✓ Авторизация прошла успешно");
 
             $fullName = storage_path('app/perspektivakrym') . '/' . $fileName;
+            
+            // Создаем директорию, если она не существует
+            $directory = storage_path('app/perspektivakrym');
+            if (!file_exists($directory)) {
+                mkdir($directory, 0755, true);
+                Log::info("Создана директория для Excel файлов: {$directory}");
+            }
 
             $titleStyle = [
                 'font' => [
@@ -2026,15 +2043,19 @@ class PerspektivakrymController extends Controller
 
             $writer = new Xlsx($spreadsheet);
 
+            Log::info("Сохранение Excel файла: {$fullName}");
             $writer->save($fullName);
+            Log::info("✓ Excel файл создан успешно");
 
             if ($type === 'land') {
+                Log::info("Обработка платежей по подряду (land)");
                 $planContractPayments = $this->mPlanPayment
                     ->where('deal_id', $dealId)
                     ->where('type', 'contract')
                     ->where('number_graph', $numberGraph)
                     ->orderBy('date')
                     ->get();
+                Log::info("Найдено платежей по подряду: " . $planContractPayments->count());
                 $i = 2;
 
                 foreach ($planContractPayments as $p) {
@@ -2066,12 +2087,14 @@ class PerspektivakrymController extends Controller
             }
 
             if ($type === 'general') {
+                Log::info("Обработка платежей по основному договору (general)");
                 $planContractPayments = $this->mPlanPayment
                     ->where('deal_id', $dealId)
                     ->where('type', 'main')
                     ->where('number_graph', $numberGraph)
                     ->orderBy('date')
                     ->get();
+                Log::info("Найдено платежей по основному договору: " . $planContractPayments->count());
                 $i = 2;
 
 
@@ -2106,7 +2129,11 @@ class PerspektivakrymController extends Controller
 
 
             chmod($fullName, 0750);
+            Log::info("Установлены права доступа к файлу: 0750");
 
+            Log::info("=== ЗАВЕРШЕНИЕ СОЗДАНИЯ EXCEL ФАЙЛА ===");
+            Log::info("✓ Файл готов к скачиванию: {$fullName}");
+            
             return response()->download($fullName);
 
         } catch (\DomainException $e) {
