@@ -1491,12 +1491,20 @@ class PerspektivakrymController extends Controller
     public function getGeneralPdf(Request $request)
     {
         try {
+            Log::info("=== НАЧАЛО СОЗДАНИЯ ОБЩЕГО PDF ===");
+            
             $dealId = $request->get('deal_id');
             $auth = $request->get('auth');
             $type = $request->get('type');
             $number = $request->get('annex_number', 1);
             $entity = $request->get('entity', null);
             $numberGraph = $request->get('number_graph', 0);
+            
+            Log::info("Сделка ID: {$dealId}");
+            Log::info("Тип: {$type}");
+            Log::info("Номер приложения: {$number}");
+            Log::info("Юридическое лицо: {$entity}");
+            Log::info("Номер графика: {$numberGraph}");
 
 //            if (is_null($entity)) {
 //                throw new \DomainException('Необходимо указать юридическое лицо');
@@ -1506,19 +1514,23 @@ class PerspektivakrymController extends Controller
 //                throw new \DomainException('Приложение не авторизовано');
 //            }
 
+            Log::info("Получение платежей по основному договору...");
             $planMainPayments = $this->mPlanPayment
                 ->where('deal_id', $dealId)
                 ->where('type', 'main')
                 ->where('number_graph', $numberGraph)
                 ->orderBy('date')
                 ->get();
+            Log::info("Найдено платежей по основному договору: " . $planMainPayments->count());
 
+            Log::info("Получение платежей по подряду...");
             $planContractPayments = $this->mPlanPayment
                 ->where('deal_id', $dealId)
                 ->where('type', 'contract')
                 ->where('number_graph', $numberGraph)
                 ->orderBy('date')
                 ->get();
+            Log::info("Найдено платежей по подряду: " . $planContractPayments->count());
 
 //            if (count($planPayments) == 0) {
 //                throw new \DomainException('Нет платежей');
@@ -1678,10 +1690,21 @@ class PerspektivakrymController extends Controller
 //            $logoInBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents(storage_path('app/perspektivakrym/logo.png')));
             $html = '';
 //            <img src="data:image/png;base64,' . base64_encode(file_get_contents(storage_path('app/1576045789.png'))) . '" />
+            // Проверяем существование логотипа
+            $logoPath = storage_path('app/logo2.png');
+            $logoHtml = '';
+            if (file_exists($logoPath)) {
+                $logoHtml = '<img src="data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) . '"/>';
+                Log::info("Логотип найден: {$logoPath}");
+            } else {
+                Log::warning("Логотип не найден: {$logoPath}, используем текстовую замену");
+                $logoHtml = '<div style="font-size: 18px; font-weight: bold; color: #002060;">ПЕРСПЕКТИВА КРЫМ</div>';
+            }
+            
             $html = $html . '<table width="100%">
             <tr>
             <td width="50%">
-            <img src="data:image/png;base64,' . base64_encode(file_get_contents(storage_path('app/logo2.png'))) . '"/>
+            ' . $logoHtml . '
             </td>
             <td width="50%" style="text-align: right">
             ' . $dealGk . ', <br />' . $typeApId . ' №'. $ap . '<br>Дата расчета: ' . date('d.m.Y') . '
@@ -1814,6 +1837,9 @@ class PerspektivakrymController extends Controller
 
             $dompdf->render();
 
+            Log::info("=== ЗАВЕРШЕНИЕ СОЗДАНИЯ ОБЩЕГО PDF ===");
+            Log::info("✓ PDF файл готов к скачиванию");
+            
             $dompdf->stream();
 
 //            $base64  = file_get_contents(storage_path('app/perspektivakrym/logo.png'));
