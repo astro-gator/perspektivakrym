@@ -486,13 +486,16 @@ class PerspektivakrymController extends Controller
 
             Log::info("=== ВХОДНЫЕ ДАННЫЕ ИЗ BITRIX24 ===");
             
+            // Собираем все ошибки валидации
+            $validationErrors = [];
+            
             //сумма сделки
             $dealAmount = (int)$deal['OPPORTUNITY'];
             Log::info("Поле OPPORTUNITY (Сумма сделки) значение: {$dealAmount}");
 
             if($dealAmount == 0) {
+                $validationErrors[] = 'Сумма сделки равна 0';
                 Log::error("ОШИБКА: Сумма сделки равна 0");
-                throw new \DomainException('Сумма сделки равна 0');
             }
 
             //ПВ основной
@@ -520,8 +523,8 @@ class PerspektivakrymController extends Controller
             $finishDate = $deal['UF_CRM_1612354364'];
             Log::info("Поле UF_CRM_1612354364 (Дата окончания строительства) значение: {$finishDate}");
             if ($finishDate == '') {
+                $validationErrors[] = 'Не указана дата окончания строительства';
                 Log::error("ОШИБКА: Не указана дата окончания строительства");
-                throw new \DomainException('Не указана дата окончания строительства');
             }
 
             //Дней на внесение ПВ (ДДУ / земля / доп лот)
@@ -559,8 +562,8 @@ class PerspektivakrymController extends Controller
             Log::info("Поле UF_CRM_1611646586442 (Дата заключения подряда) значение: {$dateStartPodryad}");
             if ($firstPaymentContract !== 0) {
                 if (!$deal['UF_CRM_1611646586442']) {
+                    $validationErrors[] = 'Не указана дата заключения подряда';
                     Log::error("ОШИБКА: Не указана дата заключения подряда");
-                    throw new \DomainException('Не указана дата заключения подряда');
                 }
             }
 
@@ -568,8 +571,8 @@ class PerspektivakrymController extends Controller
             $dateStartMain = $deal['UF_CRM_AMO_560317'];
             Log::info("Поле UF_CRM_AMO_560317 (Дата создания основного договора) значение: {$dateStartMain}");
             if (!$dateStartMain) {
+                $validationErrors[] = 'Не указана дата заключения основного договора';
                 Log::error("ОШИБКА: Не указана дата заключения основного договора");
-                throw new \DomainException('Не указана дата заключения основного договора');
             }
 
             Log::info("=== ЧАСТОТА ПЛАТЕЖЕЙ И НОМЕРА ДОГОВОРОВ ===");
@@ -587,8 +590,8 @@ class PerspektivakrymController extends Controller
             $numberLand = $deal['UF_CRM_1611646713185'];
             Log::info("Поле UF_CRM_1611646713185 (№ основного договора) значение: {$numberLand}");
             if (!$numberLand) {
+                $validationErrors[] = 'Не указан номер основного договора';
                 Log::error("ОШИБКА: Не указан номер основного договора");
-                throw new \DomainException('Не указан номер основного договора');
             }
 
             //№ договора ПОДРЯД"
@@ -597,9 +600,16 @@ class PerspektivakrymController extends Controller
 
             if ($deal['UF_CRM_1611646586442'] !== '') {
                 if (!$numberContract) {
+                    $validationErrors[] = 'Не указан номер договора подряда';
                     Log::error("ОШИБКА: Не указан номер договора подряда");
-                    throw new \DomainException('Не указан номер договора подряда');
                 }
+            }
+
+            // Проверяем, есть ли ошибки валидации
+            if (!empty($validationErrors)) {
+                $errorMessage = 'Ошибки валидации данных:' . PHP_EOL . implode(PHP_EOL, $validationErrors);
+                Log::error($errorMessage);
+                throw new \DomainException($errorMessage);
             }
 
 //            dd($paymentFrequency);
@@ -630,7 +640,7 @@ class PerspektivakrymController extends Controller
 
             //count
             $dateStartWithDays = Carbon::create($dateStartMain)->addDays($daysFirstPayment);
-            $totalMonths = Carbon::create($finishDate)->diffInMonths($dateStartWithDays);
+            $totalMonths = $dateStartWithDays->diffInMonths(Carbon::create($finishDate));
             $count = floor($totalMonths / $quantityFromFrequency);
             
             Log::info("Формула расчета количества платежей:");
@@ -641,6 +651,12 @@ class PerspektivakrymController extends Controller
             Log::info("  Общее количество месяцев: {$totalMonths}");
             Log::info("  Количество месяцев в периоде: {$quantityFromFrequency}");
             Log::info("  Количество платежей: {$count}");
+            
+            // Проверяем, что количество платежей положительное
+            if ($count <= 0) {
+                $validationErrors[] = "Некорректное количество платежей: {$count}. Проверьте даты начала и окончания.";
+                Log::error("ОШИБКА: Некорректное количество платежей: {$count}");
+            }
 //            $test = strtotime($finishDate) - strtotime(Carbon::create($dateStartMain)->addDays($daysFirstPayment));
 //            dd($count, $installmentPlan);
 
