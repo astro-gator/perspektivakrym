@@ -1678,6 +1678,9 @@ class PerspektivakrymController extends Controller
 //            $pdf = $pdfDoc->loadView('pdf', $data);
             $options = new Options();
             $options->set('defaultFont', 'Times');
+            $options->set('isRemoteEnabled', true);
+            $options->set('isHtml5ParserEnabled', true);
+            $options->set('isFontSubsettingEnabled', true);
             $dompdf = new Dompdf($options);
 
 
@@ -1688,7 +1691,20 @@ class PerspektivakrymController extends Controller
 //            $pdf = new \Mpdf\Mpdf();
 //            $logoInBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents(storage_path('app/perspektivakrym/logo.png')));
 //            $logoInBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents(storage_path('app/perspektivakrym/logo.png')));
-            $html = '';
+            $html = "\xEF\xBB\xBF" . '<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <style>
+        body { font-family: Times, serif; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+        thead th { background-color: #002060; color: white; }
+        .logo-text { font-size: 18px; font-weight: bold; color: #002060; }
+    </style>
+</head>
+<body>';
 //            <img src="data:image/png;base64,' . base64_encode(file_get_contents(storage_path('app/1576045789.png'))) . '" />
             // Проверяем существование логотипа
             $logoPath = storage_path('app/logo2.png');
@@ -1698,7 +1714,7 @@ class PerspektivakrymController extends Controller
                 Log::info("Логотип найден: {$logoPath}");
             } else {
                 Log::warning("Логотип не найден: {$logoPath}, используем текстовую замену");
-                $logoHtml = '<div style="font-size: 18px; font-weight: bold; color: #002060;">ПЕРСПЕКТИВА КРЫМ</div>';
+                $logoHtml = '<div class="logo-text">ПЕРСПЕКТИВА КРЫМ</div>';
             }
             
             $html = $html . '<table width="100%">
@@ -1831,6 +1847,10 @@ class PerspektivakrymController extends Controller
 //            End Body
             $html = $html . '</table>';
 
+            $html = $html . '</body></html>';
+
+            Log::info("HTML для PDF (первые 500 символов): " . substr($html, 0, 500));
+            
             $dompdf->loadHtml($html);
 
             $dompdf->setPaper('A4', 'landscape');
