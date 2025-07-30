@@ -451,11 +451,21 @@ class PerspektivakrymController extends Controller
             $auth = $request->get('auth');
             $numberGraph = $request->get('number_graph', $numberGraph);
 
+            Log::info("=== НАЧАЛО РАСЧЕТА ГРАФИКА ПЛАТЕЖЕЙ ===");
+            Log::info("Сделка ID: {$dealId}");
+            Log::info("Номер графика: {$numberGraph}");
+            Log::info("Резерв основных платежей: {$planPaymentMainAmountReserv}");
+            Log::info("Резерв платежей по подряду: {$planPaymentContractAmountReserv}");
+
             if (!$this->checkApp($auth)) {
+                Log::error("ОШИБКА: Приложение не авторизовано");
                 throw new \DomainException('Приложение не авторизовано');
             }
 
+            Log::info("✓ Авторизация прошла успешно");
+
             $deal = $this->b24->getDealById($dealId)['result'];
+            Log::info("✓ Данные сделки получены из Bitrix24");
 
 //            dd($deal);
 
@@ -465,36 +475,52 @@ class PerspektivakrymController extends Controller
                 ->where('number_graph', $numberGraph)
                 ->count();
 
+            Log::info("Проверка существования графика: найдено {$paymentCount} активных платежей");
+
             if ($paymentCount !== 0) {
+                Log::error("ОШИБКА: График уже составлен (найдено {$paymentCount} платежей)");
                 throw new \DomainException('График уже составлен');
             }
 
+            Log::info("✓ График не существует, можно создавать новый");
+
+            Log::info("=== ВХОДНЫЕ ДАННЫЕ ИЗ BITRIX24 ===");
+            
             //сумма сделки
             $dealAmount = (int)$deal['OPPORTUNITY'];
+            Log::info("Поле OPPORTUNITY (Сумма сделки) значение: {$dealAmount}");
 
             if($dealAmount == 0) {
+                Log::error("ОШИБКА: Сумма сделки равна 0");
                 throw new \DomainException('Сумма сделки равна 0');
             }
 
             //ПВ основной
             $firstPayment = 0;
             $firstPayment = (int)$deal['UF_CRM_1602665856'];
+            Log::info("Поле UF_CRM_1602665856 (ПВ основной) значение: {$firstPayment}");
 
             //Сумма земля
             $landAmount = 0;
             $landAmount = (int)$deal['UF_CRM_1610624104'];
-
+            Log::info("Поле UF_CRM_1610624104 (Сумма земля) значение: {$landAmount}");
 
             //Сумма подряд
             $contractAmount = 0;
             $contractAmount = (int)$deal['UF_CRM_1610624123'];
+            Log::info("Поле UF_CRM_1610624123 (Сумма подряд) значение: {$contractAmount}");
             $contractAmount = $contractAmount - $planPaymentContractAmountReserv;
+            Log::info("Формула: Сумма подряд - Резерв подряда = {$contractAmount} ({$deal['UF_CRM_1610624123']} - {$planPaymentContractAmountReserv})");
 
 //            dd($landAmount, $contractAmount);
 
+            Log::info("=== ДАТЫ И ВРЕМЕННЫЕ ПАРАМЕТРЫ ===");
+            
             //Дата окончания строительства
             $finishDate = $deal['UF_CRM_1612354364'];
+            Log::info("Поле UF_CRM_1612354364 (Дата окончания строительства) значение: {$finishDate}");
             if ($finishDate == '') {
+                Log::error("ОШИБКА: Не указана дата окончания строительства");
                 throw new \DomainException('Не указана дата окончания строительства');
             }
 
@@ -504,6 +530,7 @@ class PerspektivakrymController extends Controller
             } else {
                 $daysFirstPayment = (int)$deal['UF_CRM_1610624156'];
             }
+            Log::info("Поле UF_CRM_1610624156 (Дней на внесение ПВ основной) значение: {$daysFirstPayment}");
 
             //Дней на внесение ПВ (подряд)
             if ($deal['UF_CRM_1617787747'] == '') {
@@ -511,32 +538,42 @@ class PerspektivakrymController extends Controller
             } else {
                 $daysFirstContractPayment = (int)$deal['UF_CRM_1617787747'];
             }
+            Log::info("Поле UF_CRM_1617787747 (Дней на внесение ПВ подряд) значение: {$daysFirstContractPayment}");
 
             //Рассрочка, мес. (кол-во платежей)
             $installmentPlan = 1;
             $installmentPlan = (int)$deal['UF_CRM_1602666205'];
+            Log::info("Поле UF_CRM_1602666205 (Рассрочка, мес.) значение: {$installmentPlan}");
 
             //ПВ за подряд
             $firstPaymentContract = 0;
             $firstPaymentContract = (int)$deal['UF_CRM_1612333754254'];
+            Log::info("Поле UF_CRM_1612333754254 (ПВ за подряд) значение: {$firstPaymentContract}");
 
             //Дата создания договора
             $dateCreate = $deal['UF_CRM_1602665724'];
+            Log::info("Поле UF_CRM_1602665724 (Дата создания договора) значение: {$dateCreate}");
 
             //Дата заключения ПОДРЯДА
             $dateStartPodryad = $deal['UF_CRM_1611646586442'];
+            Log::info("Поле UF_CRM_1611646586442 (Дата заключения подряда) значение: {$dateStartPodryad}");
             if ($firstPaymentContract !== 0) {
                 if (!$deal['UF_CRM_1611646586442']) {
+                    Log::error("ОШИБКА: Не указана дата заключения подряда");
                     throw new \DomainException('Не указана дата заключения подряда');
                 }
             }
 
             //Дата создания осн. договора (ДДУ, земля, доп. лот)
             $dateStartMain = $deal['UF_CRM_AMO_560317'];
+            Log::info("Поле UF_CRM_AMO_560317 (Дата создания основного договора) значение: {$dateStartMain}");
             if (!$dateStartMain) {
+                Log::error("ОШИБКА: Не указана дата заключения основного договора");
                 throw new \DomainException('Не указана дата заключения основного договора');
             }
 
+            Log::info("=== ЧАСТОТА ПЛАТЕЖЕЙ И НОМЕРА ДОГОВОРОВ ===");
+            
             //Частота платежей
             // 2302 - Месяц
             // 2304 - Квартал
@@ -544,69 +581,139 @@ class PerspektivakrymController extends Controller
             // 2308 - Год
             $paymentFrequency = 2302;
             $paymentFrequency = $deal['UF_CRM_1615449388'];
+            Log::info("Поле UF_CRM_1615449388 (Частота платежей) значение: {$paymentFrequency}");
 
             //№ основного договора (ДДУ, земля, доп. лот)"
             $numberLand = $deal['UF_CRM_1611646713185'];
+            Log::info("Поле UF_CRM_1611646713185 (№ основного договора) значение: {$numberLand}");
             if (!$numberLand) {
+                Log::error("ОШИБКА: Не указан номер основного договора");
                 throw new \DomainException('Не указан номер основного договора');
             }
 
             //№ договора ПОДРЯД"
             $numberContract = $deal['UF_CRM_1611646728314'];
+            Log::info("Поле UF_CRM_1611646728314 (№ договора подряда) значение: {$numberContract}");
 
             if ($deal['UF_CRM_1611646586442'] !== '') {
                 if (!$numberContract) {
+                    Log::error("ОШИБКА: Не указан номер договора подряда");
                     throw new \DomainException('Не указан номер договора подряда');
                 }
             }
 
 //            dd($paymentFrequency);
 
+            Log::info("=== РАСЧЕТ КОЛИЧЕСТВА ПЛАТЕЖЕЙ ===");
+            
             switch ($paymentFrequency) {
                 case '2302':
                     $quantityFromFrequency = 1;
+                    Log::info("Частота платежей: Месяц (2302) -> количество месяцев: {$quantityFromFrequency}");
                     break;
                 case '2304':
                     $quantityFromFrequency = 3;
+                    Log::info("Частота платежей: Квартал (2304) -> количество месяцев: {$quantityFromFrequency}");
                     break;
                 case '2306':
                     $quantityFromFrequency = 6;
+                    Log::info("Частота платежей: Полгода (2306) -> количество месяцев: {$quantityFromFrequency}");
                     break;
                 case '2308':
                     $quantityFromFrequency = 12;
+                    Log::info("Частота платежей: Год (2308) -> количество месяцев: {$quantityFromFrequency}");
                     break;
                 default:
                     $quantityFromFrequency = 3;
+                    Log::info("Частота платежей: По умолчанию -> количество месяцев: {$quantityFromFrequency}");
             }
 
             //count
-            $count = floor(Carbon::create($finishDate)->diffInMonths(Carbon::create($dateStartMain)->addDays($daysFirstPayment))/$quantityFromFrequency);
+            $dateStartWithDays = Carbon::create($dateStartMain)->addDays($daysFirstPayment);
+            $totalMonths = Carbon::create($finishDate)->diffInMonths($dateStartWithDays);
+            $count = floor($totalMonths / $quantityFromFrequency);
+            
+            Log::info("Формула расчета количества платежей:");
+            Log::info("  Дата начала: {$dateStartMain}");
+            Log::info("  Дней на ПВ: {$daysFirstPayment}");
+            Log::info("  Дата начала с учетом ПВ: {$dateStartWithDays->format('Y-m-d')}");
+            Log::info("  Дата окончания: {$finishDate}");
+            Log::info("  Общее количество месяцев: {$totalMonths}");
+            Log::info("  Количество месяцев в периоде: {$quantityFromFrequency}");
+            Log::info("  Количество платежей: {$count}");
 //            $test = strtotime($finishDate) - strtotime(Carbon::create($dateStartMain)->addDays($daysFirstPayment));
 //            dd($count, $installmentPlan);
 
+            Log::info("=== РАСЧЕТ ПО ОСНОВНОМУ ДОГОВОРУ ===");
+            
             //по основному договору
+            Log::info("Создание ПВ по основному договору:");
+            Log::info("  Сделка ID: {$dealId}");
+            Log::info("  Номер договора: {$numberLand}");
+            Log::info("  Сумма ПВ: {$firstPayment}");
+            Log::info("  Дата начала: {$dateStartMain}");
+            Log::info("  Дней на ПВ: {$daysFirstPayment}");
             $this->mainDownPaymentCalculate($dealId, $numberLand, $firstPayment, $dateStartMain, $daysFirstPayment, $numberGraph);
+            
             if ($landAmount !== 0) {
+                Log::info("Есть сумма по земле, используем её для расчета");
                 $landAmount = $landAmount - $planPaymentMainAmountReserv;
+                Log::info("Формула: Сумма земля - Резерв основных = {$landAmount} ({$deal['UF_CRM_1610624104']} - {$planPaymentMainAmountReserv})");
+                Log::info("Создание регулярных платежей по земле:");
+                Log::info("  Общая сумма: {$landAmount}");
+                Log::info("  ПВ: {$firstPayment}");
+                Log::info("  Количество платежей: {$count}");
                 $this->mainRegularPaymentCalculate($dealId, $numberLand, $landAmount, $firstPayment, $dateStartMain, $daysFirstPayment, $count, $paymentFrequency, $finishDate, $numberGraph);
             } else {
+                Log::info("Нет суммы по земле, используем общую сумму сделки");
                 $dealAmount = $dealAmount - $planPaymentMainAmountReserv;
+                Log::info("Формула: Сумма сделки - Резерв основных = {$dealAmount} ({$deal['OPPORTUNITY']} - {$planPaymentMainAmountReserv})");
+                Log::info("Создание регулярных платежей по сделке:");
+                Log::info("  Общая сумма: {$dealAmount}");
+                Log::info("  ПВ: {$firstPayment}");
+                Log::info("  Количество платежей: {$count}");
                 $this->mainRegularPaymentCalculate($dealId, $numberLand, $dealAmount, $firstPayment, $dateStartMain, $daysFirstPayment, $count, $paymentFrequency, $finishDate, $numberGraph);
             }
 
+            Log::info("=== РАСЧЕТ ПО ПОДРЯДУ ===");
+            
             //по подряду
             if ((!is_null($dateStartPodryad)) && ($dateStartPodryad !== '')) {
+                Log::info("Есть дата заключения подряда, создаем платежи по подряду");
                 $dateStart = Carbon::create($dateStartMain)->addDays($daysFirstPayment)->format('Y-m-d');
+                Log::info("Дата начала подряда: {$dateStart} (основная дата + {$daysFirstPayment} дней)");
+                
+                Log::info("Создание ПВ по подряду:");
+                Log::info("  Сделка ID: {$dealId}");
+                Log::info("  Номер договора: {$numberContract}");
+                Log::info("  Сумма ПВ: {$firstPaymentContract}");
+                Log::info("  Дата начала: {$dateStart}");
+                Log::info("  Дней на ПВ: {$daysFirstContractPayment}");
                 $this->contractDownPaymentCalculate($dealId, $numberContract, $firstPaymentContract, $dateStart, $daysFirstContractPayment, $numberGraph);
+                
+                Log::info("Создание регулярных платежей по подряду:");
+                Log::info("  Общая сумма: {$contractAmount}");
+                Log::info("  ПВ: {$firstPaymentContract}");
+                Log::info("  Количество платежей: {$count}");
                 $this->contractRegularPaymentCalculate($dealId, $numberContract, $contractAmount, $firstPaymentContract, $dateStart, $daysFirstContractPayment, $count, $paymentFrequency, $numberGraph);
+            } else {
+                Log::info("Нет даты заключения подряда, пропускаем расчет по подряду");
             }
 
+            Log::info("=== ЗАВЕРШЕНИЕ РАСЧЕТА ===");
+            Log::info("✓ График платежей успешно создан");
+            Log::info("✓ Возврат к странице с результатами");
+            
             return $this->index(new Request(), [
                 'deal_id' => $dealId,
                 'auth' => $auth,
             ]);
         } catch (\Exception $e) {
-   	    Log::error('Perspektivakrym: ' . $e->getMessage());
+            Log::error("=== ОШИБКА ПРИ РАСЧЕТЕ ===");
+            Log::error("ОШИБКА: " . $e->getMessage());
+            Log::error("Сделка ID: {$dealId}");
+            Log::error("Номер графика: {$numberGraph}");
+            
             return $this->index(new Request(), [
                 'deal_id' => $dealId,
                 'error' => $e->getMessage(),
@@ -2023,18 +2130,31 @@ class PerspektivakrymController extends Controller
      */
     protected function mainDownPaymentCalculate($dealId, $docNumber, $amount, $dateStart, $days, $numberGraph = 0)
     {
+        $paymentDate = Carbon::create($dateStart)->addDays($days)->format('Y-m-d');
+        
+        Log::info("Создание ПВ по основному договору:");
+        Log::info("  Сделка ID: {$dealId}");
+        Log::info("  Номер документа: {$docNumber}");
+        Log::info("  Сумма ПВ: {$amount}");
+        Log::info("  Дата начала: {$dateStart}");
+        Log::info("  Дней на ПВ: {$days}");
+        Log::info("  Дата платежа: {$paymentDate}");
+        Log::info("  Номер графика: {$numberGraph}");
+        
         $this->mPlanPayment->create([
             'deal_id' => $dealId,
             'type' => $this->mPlanPayment::MAIN,
             'pay_type' => $this->mPlanPayment::DOWN_PAYMENT,
             'doc_number' => $docNumber,
             'amount' => $amount,
-            'date' => Carbon::create($dateStart)->addDays($days)->format('Y-m-d'),
+            'date' => $paymentDate,
             'blocked' => $this->mPlanPayment::BLOCK,
             'note' => '',
             'order' => 1,
             'number_graph' => $numberGraph,
         ]);
+        
+        Log::info("✓ ПВ по основному договору создан");
     }
 
     /**
@@ -2050,14 +2170,29 @@ class PerspektivakrymController extends Controller
      */
     protected function mainRegularPaymentCalculate($dealId, $docNumber, $allAmount, $firstAmount, $dateStart, $days, $count, $period, $finishDate, $numberGraph = 0)
     {
+        Log::info("Создание регулярных платежей по основному договору:");
+        Log::info("  Сделка ID: {$dealId}");
+        Log::info("  Номер документа: {$docNumber}");
+        Log::info("  Общая сумма: {$allAmount}");
+        Log::info("  Сумма ПВ: {$firstAmount}");
+        Log::info("  Дата начала: {$dateStart}");
+        Log::info("  Дней на ПВ: {$days}");
+        Log::info("  Количество платежей: {$count}");
+        Log::info("  Период: {$period}");
+        Log::info("  Дата окончания: {$finishDate}");
+        Log::info("  Номер графика: {$numberGraph}");
+        
         $dateStart = Carbon::create($dateStart)->addDays($days)->format('Y-m-d');
         $dateStart = $this->getPlanDate($dateStart, $period);
+        Log::info("  Дата первого платежа: {$dateStart}");
 
 //        Кол-во мы стали передавать как аргумент
 //        $count = $this->getCountPayment($count, $period);
         $amount = ceil(($allAmount - $firstAmount) / $count);
+        Log::info("  Формула: ceil((Общая сумма - ПВ) / Количество) = ceil(({$allAmount} - {$firstAmount}) / {$count}) = {$amount}");
 
         if ($count == 1) {
+            Log::info("  Только один платеж, создаем его на всю оставшуюся сумму");
             $this->mPlanPayment->create([
                 'deal_id' => $dealId,
                 'type' => $this->mPlanPayment::MAIN,
@@ -2070,10 +2205,14 @@ class PerspektivakrymController extends Controller
                 'order' => 1,
                 'number_graph' => $numberGraph,
             ]);
+            Log::info("✓ Единственный регулярный платеж создан");
             return;
         }
 
+        Log::info("  Создание {$count} регулярных платежей по {$amount} каждый");
+        
         for ($i = 1; $i < $count; $i++ ) {
+            Log::info("  Создание платежа {$i} на сумму {$amount} с датой {$dateStart}");
             $this->mPlanPayment->create([
                 'deal_id' => $dealId,
                 'type' => $this->mPlanPayment::MAIN,
@@ -2090,6 +2229,10 @@ class PerspektivakrymController extends Controller
         }
 
         $lastAmount = $allAmount - $firstAmount - ($amount * ($count - 1));
+        Log::info("  Формула последнего платежа: Общая сумма - ПВ - (Сумма платежа × (Количество - 1))");
+        Log::info("  Формула: {$allAmount} - {$firstAmount} - ({$amount} × ({$count} - 1)) = {$lastAmount}");
+        Log::info("  Создание последнего платежа на сумму {$lastAmount} с датой {$dateStart}");
+        
         $this->mPlanPayment->create([
             'deal_id' => $dealId,
             'type' => $this->mPlanPayment::MAIN,
@@ -2102,6 +2245,8 @@ class PerspektivakrymController extends Controller
             'order' => 1,
             'number_graph' => $numberGraph,
         ]);
+        
+        Log::info("✓ Все регулярные платежи по основному договору созданы");
         return;
     }
 
@@ -2116,6 +2261,14 @@ class PerspektivakrymController extends Controller
      */
     protected function contractDownPaymentCalculate($dealId, $docNumber, $amount, $dateStart, $days, $numberGraph = 0)
     {
+        Log::info("Создание ПВ по подряду:");
+        Log::info("  Сделка ID: {$dealId}");
+        Log::info("  Номер документа: {$docNumber}");
+        Log::info("  Сумма ПВ: {$amount}");
+        Log::info("  Дата начала: {$dateStart}");
+        Log::info("  Дней на ПВ: {$days}");
+        Log::info("  Дата платежа: {$dateStart}");
+        Log::info("  Номер графика: {$numberGraph}");
 
         $this->mPlanPayment->create([
             'deal_id' => $dealId,
@@ -2130,6 +2283,8 @@ class PerspektivakrymController extends Controller
             'order' => 1,
             'number_graph' => $numberGraph,
         ]);
+        
+        Log::info("✓ ПВ по подряду создан");
     }
 
     /**
@@ -2145,15 +2300,29 @@ class PerspektivakrymController extends Controller
      */
     protected function contractRegularPaymentCalculate($dealId, $docNumber, $allAmount, $firstAmount, $dateStart, $days, $count, $period, $numberGraph = 0)
     {
+        Log::info("Создание регулярных платежей по подряду:");
+        Log::info("  Сделка ID: {$dealId}");
+        Log::info("  Номер документа: {$docNumber}");
+        Log::info("  Общая сумма: {$allAmount}");
+        Log::info("  Сумма ПВ: {$firstAmount}");
+        Log::info("  Дата начала: {$dateStart}");
+        Log::info("  Дней на ПВ: {$days}");
+        Log::info("  Количество платежей: {$count}");
+        Log::info("  Период: {$period}");
+        Log::info("  Номер графика: {$numberGraph}");
+        
         $dateStart = Carbon::create($dateStart)->addDays($days)->format('Y-m-d');
         $dateStart = $this->getPlanDate($dateStart, $period);
+        Log::info("  Дата первого платежа: {$dateStart}");
 
 //        Кол-во мы стали передавать как аргумент
 //        $count = $this->getCountPayment($count, $period);
 
         $amount = ceil(($allAmount - $firstAmount) / $count);
+        Log::info("  Формула: ceil((Общая сумма - ПВ) / Количество) = ceil(({$allAmount} - {$firstAmount}) / {$count}) = {$amount}");
 
         if ($count == 1) {
+            Log::info("  Только один платеж, создаем его на всю оставшуюся сумму");
             $this->mPlanPayment->create([
                 'deal_id' => $dealId,
                 'type' => $this->mPlanPayment::CONTRACT,
@@ -2166,10 +2335,14 @@ class PerspektivakrymController extends Controller
                 'order' => 1,
                 'number_graph' => $numberGraph,
             ]);
+            Log::info("✓ Единственный регулярный платеж по подряду создан");
             return;
         }
 
+        Log::info("  Создание {$count} регулярных платежей по подряду по {$amount} каждый");
+        
         for ($i = 1; $i < $count; $i++ ) {
+            Log::info("  Создание платежа по подряду {$i} на сумму {$amount} с датой {$dateStart}");
             $this->mPlanPayment->create([
                 'deal_id' => $dealId,
                 'type' => $this->mPlanPayment::CONTRACT,
@@ -2186,6 +2359,10 @@ class PerspektivakrymController extends Controller
         }
 
         $lastAmount = $allAmount - $firstAmount - ($amount * ($count - 1));
+        Log::info("  Формула последнего платежа по подряду: Общая сумма - ПВ - (Сумма платежа × (Количество - 1))");
+        Log::info("  Формула: {$allAmount} - {$firstAmount} - ({$amount} × ({$count} - 1)) = {$lastAmount}");
+        Log::info("  Создание последнего платежа по подряду на сумму {$lastAmount} с датой {$dateStart}");
+        
         $this->mPlanPayment->create([
             'deal_id' => $dealId,
             'type' => $this->mPlanPayment::CONTRACT,
@@ -2198,6 +2375,8 @@ class PerspektivakrymController extends Controller
             'order' => 1,
             'number_graph' => $numberGraph,
         ]);
+        
+        Log::info("✓ Все регулярные платежи по подряду созданы");
         return;
     }
 
