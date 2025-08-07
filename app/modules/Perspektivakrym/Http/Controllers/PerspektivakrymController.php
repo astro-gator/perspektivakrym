@@ -424,6 +424,7 @@ class PerspektivakrymController extends Controller
                     'auth' => $auth,
                     'mainContract' => $deal['UF_CRM_1611646713185'],
                     'contractorContract' => $deal['UF_CRM_1611646728314'],
+                    'bookingContractAmount' => (int)$deal['UF_CRM_1674721172107'],
                 ]]);
         } catch (\DomainException $e) {
             Log::error('Perspektivakrym: ' . $e->getMessage());
@@ -497,6 +498,11 @@ class PerspektivakrymController extends Controller
                 $validationErrors[] = 'Сумма сделки равна 0';
                 Log::error("ОШИБКА: Сумма сделки равна 0");
             }
+
+            //Сумма договора брони
+            $bookingContractAmount = 0;
+            $bookingContractAmount = (int)$deal['UF_CRM_1674721172107'];
+            Log::info("Поле UF_CRM_1674721172107 (Сумма договора брони) значение: {$bookingContractAmount}");
 
             //ПВ основной
             $firstPayment = 0;
@@ -673,8 +679,8 @@ class PerspektivakrymController extends Controller
             
             if ($landAmount !== 0) {
                 Log::info("Есть сумма по земле, используем её для расчета");
-                $landAmount = $landAmount - $planPaymentMainAmountReserv;
-                Log::info("Формула: Сумма земля - Резерв основных = {$landAmount} ({$deal['UF_CRM_1610624104']} - {$planPaymentMainAmountReserv})");
+                $landAmount = $landAmount - $planPaymentMainAmountReserv - $bookingContractAmount;
+                Log::info("Формула: Сумма земля - Резерв основных - Сумма договора брони = {$landAmount} ({$deal['UF_CRM_1610624104']} - {$planPaymentMainAmountReserv} - {$bookingContractAmount})");
                 Log::info("Создание регулярных платежей по земле:");
                 Log::info("  Общая сумма: {$landAmount}");
                 Log::info("  ПВ: {$firstPayment}");
@@ -682,8 +688,8 @@ class PerspektivakrymController extends Controller
                 $this->mainRegularPaymentCalculate($dealId, $numberLand, $landAmount, $firstPayment, $dateStartMain, $daysFirstPayment, $count, $paymentFrequency, $finishDate, $numberGraph);
             } else {
                 Log::info("Нет суммы по земле, используем общую сумму сделки");
-                $dealAmount = $dealAmount - $planPaymentMainAmountReserv;
-                Log::info("Формула: Сумма сделки - Резерв основных = {$dealAmount} ({$deal['OPPORTUNITY']} - {$planPaymentMainAmountReserv})");
+                $dealAmount = $dealAmount - $planPaymentMainAmountReserv - $bookingContractAmount;
+                Log::info("Формула: Сумма сделки - Резерв основных - Сумма договора брони = {$dealAmount} ({$deal['OPPORTUNITY']} - {$planPaymentMainAmountReserv} - {$bookingContractAmount})");
                 Log::info("Создание регулярных платежей по сделке:");
                 Log::info("  Общая сумма: {$dealAmount}");
                 Log::info("  ПВ: {$firstPayment}");
@@ -977,8 +983,14 @@ class PerspektivakrymController extends Controller
             //Получаем сумму сделки
             $deal = $this->b24->getDealById($dealId)['result'];
             $dealAmount = (int)$deal['OPPORTUNITY'];
+            
+            //Получаем сумму договора брони
+            $bookingContractAmount = (int)$deal['UF_CRM_1674721172107'];
+            
+            //Вычисляем сумму к оплате (сумма сделки минус сумма договора брони)
+            $amountToPay = $dealAmount - $bookingContractAmount;
 
-            if ($amountFactPayment >= $dealAmount) {
+            if ($amountFactPayment >= $amountToPay) {
                 //меняем поле сделки
                 $this->b24->changeFieldContractPaidOfDeal($dealId, 1);
             } else {
