@@ -21,6 +21,9 @@
                         <li class="nav-item" role="presentation">
                             <a class="nav-link" id="payments" data-toggle="tab" href="#payments-tab" role="tab" >Платежи</a>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="fields" data-toggle="tab" href="#fields-tab" role="tab">Поля расчета</a>
+                        </li>
                     </ul>
 
                     <div class="tab-content">
@@ -34,6 +37,78 @@
                             <h2>Фактические платежи</h2>
                             @include('perspektivakrym::_partical.payments')
                         </div>
+                        {{-- Tab поля расчета --}}
+                        <div class="tab-pane" id="fields-tab" role="tabpanel" aria-labelledby="fields-tab">
+                            <h2>Поля расчета рассрочки</h2>
+                            
+                            {{-- Основные поля сделки --}}
+                            <h4>Основные поля сделки</h4>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-bordered">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th>Название поля</th>
+                                                    <th>Код поля</th>
+                                                    <th>Значение</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($viewData['dealFields'] as $field)
+                                                    <tr>
+                                                        <td>{{ $field['name'] }}</td>
+                                                        <td><code>{{ $field['code'] }}</code></td>
+                                                        <td>
+                                                            @if(isset($field['description']))
+                                                                {{ $field['description'] }}
+                                                            @elseif(is_numeric($field['value']))
+                                                                {{ number_format($field['value'], 0, '.', ' ') }}
+                                                            @else
+                                                                {{ $field['value'] ?: 'Не заполнено' }}
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {{-- Вычисленные значения --}}
+                            <h4>Вычисленные значения</h4>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-bordered">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th>Название поля</th>
+                                                    <th>Формула</th>
+                                                    <th>Значение</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($viewData['calculatedFields'] as $field)
+                                                    <tr>
+                                                        <td>{{ $field['name'] }}</td>
+                                                        <td><code>{{ $field['code'] }}</code></td>
+                                                        <td>
+                                                            @if(is_numeric($field['value']))
+                                                                {{ number_format($field['value'], 0, '.', ' ') }}
+                                                            @else
+                                                                {{ $field['value'] ?: 'Не заполнено' }}
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 @else
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -42,6 +117,9 @@
                         </li>
                         <li class="nav-item" role="presentation">
                             <a class="nav-link" id="payments" data-toggle="tab" href="#payments-tab" role="tab" >Платежи</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="fields" data-toggle="tab" href="#fields-tab" role="tab">Поля расчета</a>
                         </li>
                     </ul>
                     <div class="tab-content">
@@ -59,6 +137,78 @@
                         {{-- Tab платежи --}}
                         <div class="tab-pane" id="payments-tab" role="tabpanel" aria-labelledby="home-tab">
                             <h2>Фактические платежи</h2>
+                        </div>
+                        {{-- Tab поля расчета --}}
+                        <div class="tab-pane" id="fields-tab" role="tabpanel" aria-labelledby="fields-tab">
+                            <h2>Поля расчета рассрочки</h2>
+                            
+                            {{-- Основные поля сделки --}}
+                            <h4>Основные поля сделки</h4>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-bordered">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th>Название поля</th>
+                                                    <th>Код поля</th>
+                                                    <th>Значение</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($viewData['dealFields'] as $field)
+                                                    <tr>
+                                                        <td>{{ $field['name'] }}</td>
+                                                        <td><code>{{ $field['code'] }}</code></td>
+                                                        <td>
+                                                            @if(isset($field['description']))
+                                                                {{ $field['description'] }}
+                                                            @elseif(is_numeric($field['value']))
+                                                                {{ number_format($field['value'], 0, '.', ' ') }}
+                                                            @else
+                                                                {{ $field['value'] ?: 'Не заполнено' }}
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {{-- Вычисленные значения --}}
+                            <h4>Вычисленные значения</h4>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-bordered">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th>Название поля</th>
+                                                    <th>Формула</th>
+                                                    <th>Значение</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($viewData['calculatedFields'] as $field)
+                                                    <tr>
+                                                        <td>{{ $field['name'] }}</td>
+                                                        <td><code>{{ $field['code'] }}</code></td>
+                                                        <td>
+                                                            @if(is_numeric($field['value']))
+                                                                {{ number_format($field['value'], 0, '.', ' ') }}
+                                                            @else
+                                                                {{ $field['value'] ?: 'Не заполнено' }}
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 @endif
