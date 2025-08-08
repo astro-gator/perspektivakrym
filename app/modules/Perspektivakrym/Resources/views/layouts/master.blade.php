@@ -12,6 +12,25 @@
         <script src="https://api.bitrix24.com/api/v1"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
+        <style>
+            /* Стили для заблокированных элементов */
+            .blocked {
+                opacity: 0.5;
+            }
+            
+            /* Стили для заблокированных кнопок удаления */
+            .delete-plan-pay.blocked,
+            .delete-fact-pay.blocked {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+            
+            .delete-plan-pay.blocked:hover,
+            .delete-fact-pay.blocked:hover {
+                opacity: 0.5;
+            }
+        </style>
+
        {{-- Laravel Mix - CSS File --}}
        {{-- <link rel="stylesheet" href="{{ mix('css/perspektivakrym.css') }}"> --}}
 
@@ -90,6 +109,44 @@
                 
                 // Показываем модальное окно для PDF
                 $('#get-pdf-contract').modal('show');
+            });
+            
+            // Обработчик для кнопки удаления планового платежа
+            $(document).on('click', '.delete-plan-pay', function(e) {
+                e.preventDefault();
+                
+                // Проверяем, не заблокирован ли платеж
+                if ($(this).hasClass('blocked')) {
+                    alert('Платеж удалить нельзя, платеж заморожен');
+                    return false;
+                }
+                
+                var paymentId = $(this).data('id');
+                
+                // Устанавливаем ID платежа в скрытое поле модального окна
+                $('#delete-plan-pay input[name="operation_id"]').val(paymentId);
+                
+                // Показываем модальное окно подтверждения удаления
+                $('#delete-plan-pay').modal('show');
+            });
+            
+            // Обработчик для кнопки удаления фактического платежа
+            $(document).on('click', '.delete-fact-pay', function(e) {
+                e.preventDefault();
+                
+                // Проверяем, не заблокирован ли платеж
+                if ($(this).hasClass('blocked')) {
+                    alert('Платеж удалить нельзя, платеж заморожен');
+                    return false;
+                }
+                
+                var paymentId = $(this).data('id');
+                
+                // Устанавливаем ID платежа в скрытое поле модального окна
+                $('#delete-fact-pay input[name="operation_id"]').val(paymentId);
+                
+                // Показываем модальное окно подтверждения удаления
+                $('#delete-fact-pay').modal('show');
             });
         });
         </script>
