@@ -96,11 +96,122 @@ class PerspektivakrymController extends Controller
                 ->get();
 
             if (count($planPayments) == 0) {
+                // Получаем данные по сделке для отображения полей
+                $dealData = $this->b24->getDealById($dealId);
+                $deal = $dealData['result'];
+                
                 return view('perspektivakrym::index')
                     ->with(['viewData' => [
                         'payments' => [],
                         'dealId' => $dealId,
                         'auth' => $auth,
+                        'mainContract' => $deal['UF_CRM_1611646713185'],
+                        'contractorContract' => $deal['UF_CRM_1611646728314'],
+                        'bookingContractAmount' => (int)$deal['UF_CRM_1674721172107'],
+                        
+                        // Данные для отображения полей расчета
+                        'dealFields' => [
+                            'OPPORTUNITY' => [
+                                'name' => 'Сумма сделки',
+                                'value' => (int)$deal['OPPORTUNITY'],
+                                'code' => 'OPPORTUNITY'
+                            ],
+                            'UF_CRM_1674721172107' => [
+                                'name' => 'Сумма договора брони',
+                                'value' => (int)$deal['UF_CRM_1674721172107'],
+                                'code' => 'UF_CRM_1674721172107'
+                            ],
+                            'UF_CRM_1602665856' => [
+                                'name' => 'ПВ основной',
+                                'value' => (int)$deal['UF_CRM_1602665856'],
+                                'code' => 'UF_CRM_1602665856'
+                            ],
+                            'UF_CRM_1610624104' => [
+                                'name' => 'Сумма земля',
+                                'value' => (int)$deal['UF_CRM_1610624104'],
+                                'code' => 'UF_CRM_1610624104'
+                            ],
+                            'UF_CRM_1610624123' => [
+                                'name' => 'Сумма подряд',
+                                'value' => (int)$deal['UF_CRM_1610624123'],
+                                'code' => 'UF_CRM_1610624123'
+                            ],
+                            'UF_CRM_1612354364' => [
+                                'name' => 'Дата окончания строительства',
+                                'value' => $deal['UF_CRM_1612354364'],
+                                'code' => 'UF_CRM_1612354364'
+                            ],
+                            'UF_CRM_1610624156' => [
+                                'name' => 'Дней на внесение ПВ основной',
+                                'value' => (int)$deal['UF_CRM_1610624156'],
+                                'code' => 'UF_CRM_1610624156'
+                            ],
+                            'UF_CRM_1617787747' => [
+                                'name' => 'Дней на внесение ПВ подряд',
+                                'value' => (int)$deal['UF_CRM_1617787747'],
+                                'code' => 'UF_CRM_1617787747'
+                            ],
+                            'UF_CRM_1602666205' => [
+                                'name' => 'Рассрочка, мес.',
+                                'value' => (int)$deal['UF_CRM_1602666205'],
+                                'code' => 'UF_CRM_1602666205'
+                            ],
+                            'UF_CRM_1612333754254' => [
+                                'name' => 'ПВ за подряд',
+                                'value' => (int)$deal['UF_CRM_1612333754254'],
+                                'code' => 'UF_CRM_1612333754254'
+                            ],
+                            'UF_CRM_1602665724' => [
+                                'name' => 'Дата создания договора',
+                                'value' => $deal['UF_CRM_1602665724'],
+                                'code' => 'UF_CRM_1602665724'
+                            ],
+                            'UF_CRM_1611646586442' => [
+                                'name' => 'Дата заключения подряда',
+                                'value' => $deal['UF_CRM_1611646586442'],
+                                'code' => 'UF_CRM_1611646586442'
+                            ],
+                            'UF_CRM_AMO_560317' => [
+                                'name' => 'Дата создания основного договора',
+                                'value' => $deal['UF_CRM_AMO_560317'],
+                                'code' => 'UF_CRM_AMO_560317'
+                            ],
+                            'UF_CRM_1615449388' => [
+                                'name' => 'Частота платежей',
+                                'value' => $deal['UF_CRM_1615449388'],
+                                'code' => 'UF_CRM_1615449388',
+                                'description' => $this->getPaymentFrequencyDescription($deal['UF_CRM_1615449388'])
+                            ],
+                            'UF_CRM_1611646713185' => [
+                                'name' => '№ основного договора',
+                                'value' => $deal['UF_CRM_1611646713185'],
+                                'code' => 'UF_CRM_1611646713185'
+                            ],
+                            'UF_CRM_1611646728314' => [
+                                'name' => '№ договора подряда',
+                                'value' => $deal['UF_CRM_1611646728314'],
+                                'code' => 'UF_CRM_1611646728314'
+                            ]
+                        ],
+                        
+                        // Вычисленные значения
+                        'calculatedFields' => [
+                            'amountToPay' => [
+                                'name' => 'Сумма к оплате (сделка - бронь)',
+                                'value' => (int)$deal['OPPORTUNITY'] - (int)$deal['UF_CRM_1674721172107'],
+                                'code' => 'OPPORTUNITY - UF_CRM_1674721172107'
+                            ],
+                            'landAmountAfterBooking' => [
+                                'name' => 'Сумма земля после вычета брони',
+                                'value' => (int)$deal['UF_CRM_1610624104'] - (int)$deal['UF_CRM_1674721172107'],
+                                'code' => 'UF_CRM_1610624104 - UF_CRM_1674721172107'
+                            ],
+                            'contractAmountAfterBooking' => [
+                                'name' => 'Сумма подряд после вычета брони',
+                                'value' => (int)$deal['UF_CRM_1610624123'] - (int)$deal['UF_CRM_1674721172107'],
+                                'code' => 'UF_CRM_1610624123 - UF_CRM_1674721172107'
+                            ]
+                        ]
                     ]]);
             }
 
