@@ -77,8 +77,8 @@
                 var dealId = $('input[name="deal_id"]').val();
                 var auth = $('input[name="auth"]').val();
                 
-                // Показываем модальное окно заморозки
-                $('#block-plan-pay').modal('show');
+                // Показываем модальное окно заморозки всех платежей
+                $('#freeze_all').modal('show');
             });
             
             // Обработчик для кнопки "Разморозить все"
@@ -87,8 +87,48 @@
                 var dealId = $('input[name="deal_id"]').val();
                 var auth = $('input[name="auth"]').val();
                 
-                // Показываем модальное окно разморозки
-                $('#unblock-plan-pay').modal('show');
+                // Показываем модальное окно разморозки всех платежей
+                $('#unfreeze_all').modal('show');
+            });
+            
+            // Обработчик для кнопки "Заморозить основные"
+            $('.freeze-main').on('click', function() {
+                var graphNumber = $(this).data('graph');
+                var dealId = $('input[name="deal_id"]').val();
+                var auth = $('input[name="auth"]').val();
+                
+                // Показываем модальное окно заморозки основных платежей
+                $('#freeze_main').modal('show');
+            });
+            
+            // Обработчик для кнопки "Разморозить основные"
+            $('.unfreeze-main').on('click', function() {
+                var graphNumber = $(this).data('graph');
+                var dealId = $('input[name="deal_id"]').val();
+                var auth = $('input[name="auth"]').val();
+                
+                // Показываем модальное окно разморозки основных платежей
+                $('#unfreeze_main').modal('show');
+            });
+            
+            // Обработчик для кнопки "Заморозить подряд"
+            $('.freeze-contract').on('click', function() {
+                var graphNumber = $(this).data('graph');
+                var dealId = $('input[name="deal_id"]').val();
+                var auth = $('input[name="auth"]').val();
+                
+                // Показываем модальное окно заморозки платежей по подряду
+                $('#freeze_contract').modal('show');
+            });
+            
+            // Обработчик для кнопки "Разморозить подряд"
+            $('.unfreeze-contract').on('click', function() {
+                var graphNumber = $(this).data('graph');
+                var dealId = $('input[name="deal_id"]').val();
+                var auth = $('input[name="auth"]').val();
+                
+                // Показываем модальное окно разморозки платежей по подряду
+                $('#unfreeze_contract').modal('show');
             });
             
             // Обработчик для кнопки "Основной график"
