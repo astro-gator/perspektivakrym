@@ -1920,7 +1920,7 @@ class PerspektivakrymController extends Controller
 
 //            $pdf = $pdfDoc->loadView('pdf', $data);
             $options = new Options();
-            $options->set('defaultFont', 'Times');
+            $options->set('defaultFont', 'DejaVu Sans');
             $options->set('isRemoteEnabled', true);
             $options->set('isHtml5ParserEnabled', true);
             $options->set('isFontSubsettingEnabled', true);
@@ -1940,7 +1940,7 @@ class PerspektivakrymController extends Controller
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style>
-        body { font-family: Times, serif; }
+        body { font-family: DejaVu Sans, sans-serif; }
         table { border-collapse: collapse; width: 100%; }
         th, td { border: 1px solid #000; padding: 8px; text-align: center; }
         thead th { background-color: #002060; color: white; }
