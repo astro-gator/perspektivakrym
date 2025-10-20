@@ -2706,7 +2706,11 @@ class PerspektivakrymController extends Controller
      */
     protected function generatePdfPP($name, $data, $fullName)
     {
-        $pdf = new \Mpdf\Mpdf();
+        $pdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'default_font' => 'dejavusans'
+        ]);
 //        $pdf->AddPage('P','NEXT-ODD', '10');
 
         $pdf->SetHTMLFooter('
@@ -2799,7 +2803,11 @@ class PerspektivakrymController extends Controller
      */
     protected function generatePdfPmWithoutB($name, $data, $type, $userData)
     {
-        $pdf = new \Mpdf\Mpdf();
+        $pdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'default_font' => 'dejavusans'
+        ]);
 
         $html = '';
 
@@ -3035,7 +3043,11 @@ class PerspektivakrymController extends Controller
      */
     protected function generatePdfPmWithB($name, $data, $type, $userData)
     {
-        $pdf = new \Mpdf\Mpdf();
+        $pdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'default_font' => 'dejavusans'
+        ]);
 
         $html = '';
 
@@ -3327,7 +3339,11 @@ class PerspektivakrymController extends Controller
      */
     protected function generatePdfDinastiyaWithoutB($name, $data, $type, $userData)
     {
-        $pdf = new \Mpdf\Mpdf();
+        $pdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'default_font' => 'dejavusans'
+        ]);
 
         $html = '';
 
@@ -3562,7 +3578,11 @@ class PerspektivakrymController extends Controller
      */
     protected function generatePdfLuchiWithoutB($name, $data, $type, $userData)
     {
-        $pdf = new \Mpdf\Mpdf();
+        $pdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'default_font' => 'dejavusans'
+        ]);
 
         $html = '';
 
@@ -4087,7 +4107,15 @@ class PerspektivakrymController extends Controller
             if ($paymentType !== 'all') {
                 $payments = $payments->where('type', $paymentType);
             }
-            $payments->update(['blocked' => $this->mPlanPayment::ACTIVE]);
+            
+            $affectedRows = $payments->update(['blocked' => $this->mPlanPayment::ACTIVE]);
+            
+            Log::info('Perspektivakrym unfreezePayment: ', [
+                'deal_id' => $dealId,
+                'type' => $paymentType,
+                'number_graph' => $numberGraph,
+                'affected_rows' => $affectedRows
+            ]);
 
             return $this->index(new Request(), [
                 'deal_id' => $dealId,
