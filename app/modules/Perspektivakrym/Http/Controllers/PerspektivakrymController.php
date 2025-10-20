@@ -2709,10 +2709,13 @@ class PerspektivakrymController extends Controller
         $pdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
             'format' => 'A4',
-            'default_font' => 'freeserif',
             'autoScriptToLang' => true,
-            'autoLangToFont' => true
+            'autoLangToFont' => true,
+            'tempDir' => sys_get_temp_dir()
         ]);
+        
+        // Устанавливаем шрифт для кириллицы
+        $pdf->SetDefaultFont('DejaVuSans');
 //        $pdf->AddPage('P','NEXT-ODD', '10');
 
         $pdf->SetHTMLFooter('
@@ -2808,10 +2811,13 @@ class PerspektivakrymController extends Controller
         $pdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
             'format' => 'A4',
-            'default_font' => 'freeserif',
             'autoScriptToLang' => true,
-            'autoLangToFont' => true
+            'autoLangToFont' => true,
+            'tempDir' => sys_get_temp_dir()
         ]);
+        
+        // Устанавливаем шрифт для кириллицы
+        $pdf->SetDefaultFont('DejaVuSans');
 
         $html = '';
 
@@ -3050,10 +3056,13 @@ class PerspektivakrymController extends Controller
         $pdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
             'format' => 'A4',
-            'default_font' => 'freeserif',
             'autoScriptToLang' => true,
-            'autoLangToFont' => true
+            'autoLangToFont' => true,
+            'tempDir' => sys_get_temp_dir()
         ]);
+        
+        // Устанавливаем шрифт для кириллицы
+        $pdf->SetDefaultFont('DejaVuSans');
 
         $html = '';
 
@@ -3348,10 +3357,13 @@ class PerspektivakrymController extends Controller
         $pdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
             'format' => 'A4',
-            'default_font' => 'freeserif',
             'autoScriptToLang' => true,
-            'autoLangToFont' => true
+            'autoLangToFont' => true,
+            'tempDir' => sys_get_temp_dir()
         ]);
+        
+        // Устанавливаем шрифт для кириллицы
+        $pdf->SetDefaultFont('DejaVuSans');
 
         $html = '';
 
@@ -3589,10 +3601,13 @@ class PerspektivakrymController extends Controller
         $pdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
             'format' => 'A4',
-            'default_font' => 'freeserif',
             'autoScriptToLang' => true,
-            'autoLangToFont' => true
+            'autoLangToFont' => true,
+            'tempDir' => sys_get_temp_dir()
         ]);
+        
+        // Устанавливаем шрифт для кириллицы
+        $pdf->SetDefaultFont('DejaVuSans');
 
         $html = '';
 
